@@ -1,0 +1,67 @@
+---
+title: "Reporte de reprobación de alumnos"
+subtitle: "Primer parcial"
+author: "Academia de sistemas de comunicaciones digitales"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::readthedown:
+    highlight: kate
+    cards: false
+---
+
+```{r setup, include=FALSE}
+library(tufte)
+library(readxl)
+library(dplyr)
+library(highcharter)
+library(kableExtra)
+# invalidate cache when the tufte version changes
+knitr::opts_chunk$set(tidy = FALSE, cache.extra = packageVersion('tufte'))
+options(htmltools.dir.version = FALSE)
+```
+
+
+
+
+# Introducción
+
+A continuación se presenta un análisis de las asignaturas de la academia **Sistemas de Comunicaciones Digitales** durante el período Otoño 2020, específicamente durante el primer parcial. El objetivo es identificar las asignaturas con mayor índice de reprobación y tratar de emitir recomendaciones y acciones para que en el siguiente parcial el número de reprobados sea menor al reportado en el primer parcial. En la siguiente tabla se muestran los profesores que actualmente imparten asignaturas en la academia y el número de estudiantes que atienden.
+
+```{r data, echo=FALSE, message=FALSE, warning=FALSE}
+data <- read_excel("202003_Concentrado reprobados_1 parcial.xlsx", col_names = TRUE, sheet = "BD")
+sisComm <- data %>% filter(Academia == "Sistemas de comunicaciones digitales")
+sisComm %>% group_by(DOCENTE) %>% summarise(Alumnos = n()) %>% kbl() %>% kable_paper("hover", full_width = F)
+```
+
+
+De igual forma la siguiente tabla muestra la información de las asignaturas que se imparten en el ciclo de Otoño 2020 en la academia y el número de estudiantes por asignatura.
+
+```{r data2, echo=FALSE, message=FALSE, warning=FALSE}
+sisComm %>%  group_by(ASIGNATURA,SECCIÓN) %>% summarise(Alumnos = n()) %>%  kbl() %>% kable_paper("hover", full_width = F)
+```
+
+
+
+# Reprobados por asignatura.
+
+A continuación se muestra el número de reprobados por asignatura y sección. 
+
+```{r echo=FALSE, fig.height=3, fig.width=4, message=FALSE, warning=FALSE}
+names(sisComm)[9] <- "parcial1"
+sisComm %>% filter(Aprobado =="No") %>% group_by(ASIGNATURA,SECCIÓN) %>% summarise(Reprobados = n()) %>%  hchart("column", hcaes(x = ASIGNATURA, y = Reprobados)) %>% hc_size(width = 600, height = 400) %>%
+  hc_add_theme(hc_theme_ffx()) %>% hc_title(text = "Número de alumnos reprobados por asignatura") %>%  hc_subtitle(
+    text = "IDeIO") %>% hc_colors("#e76f51")
+```
+
+
+
+# Conclusiones y recomendaciones
+
+a. Se puede notar que las asignaturas con más reprobados son _redes y protocolos de servicio_, _sistemas operativos POSIX_ y _teoría de la información_.
+
+b.- Aún cuando hay reprobados en estas asignaturas, el porcentaje de reprobados es bajo con lo cual se sugieren ciertas recomendaciones.
+
+     1. Incentivar a los profesores de las asignaturas a diversificar las actividades a evaluar.
+     2. Incentivar el uso del acompañamiento estudiantes entre los estudiantes.
+     3. Concientizar a los estudiantes que cada asignatura tiene prerequisitos que se deben cumplir para llevar de mejor forma la asignatura.
+
